@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liam Hubbard</title>
+  <meta name="description" content="Portfolio of Liam Hubbard. Projects and contact — served through an interactive terminal." />
+  <meta property="og:title" content="Liam Hubbard — Junior Developer" />
+  <meta property="og:description" content="Interactive terminal portfolio. Type help to get started." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23161b22'/%3E%3Ctext x='2' y='12' font-family='monospace' font-size='11' fill='%2344dd66'%3E%3E_%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Semantic fallback: real content for crawlers, screen readers, no-JS.
+       The terminal is an enhancement layer over this. -->
+  <main id="fallback">
+    <h1>Liam Hubbard</h1>
+    <p>Developer. Projects on <a href="https://github.com/liam2h">GitHub</a>.</p>
+
+    <section>
+      <h2>Contact</h2>
+      <p><a href="https://github.com/liam2h">GitHub</a> ·
+         <a href="https://www.linkedin.com/in/liam-hubbard-37b286333/">LinkedIn</a></p>
+    </section>
+  </main>
+
+  <!-- Terminal UI (built up by JS; hidden from assistive tech in favor of #fallback) -->
+  <div id="crt" hidden>
+    <div id="screen">
+      <div id="terminal">
+        <div id="output" aria-live="polite"></div>
+        <div id="prompt-line">
+          <span id="prompt-label">visitor@liam:~$</span>
+          <input id="cmd-input" type="text" autocomplete="off" autocapitalize="off"
+                 spellcheck="false" size="1" aria-label="Terminal command input" />
+          <span id="cursor" aria-hidden="true"></span>
+        </div>
+      </div>
+      <nav id="cmd-bar" aria-label="Commands"></nav>
+      <div id="fx"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/snake.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/screensaver.js"></script>
+
+  <!-- GoatCounter analytics -->
+  <script data-goatcounter="https://liamhubbard.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

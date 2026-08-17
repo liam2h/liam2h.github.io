@@ -1,0 +1,303 @@
+/* ── Terminal portfolio — "chronometer at dawn" CRT ──────────────────
+   Cold steel-blue phosphor, warm amber cursor. Not hacker green.
+   Design tokens live here; tweak :root and everything follows.       */
+
+:root {
+  /* palette (OKLCH) */
+  --room: oklch(0.16 0.012 240);          /* the dim room behind the monitor */
+  --bezel: oklch(0.26 0.008 250);         /* chassis plastic */
+  --bezel-edge: oklch(0.34 0.01 250);
+  --glass: oklch(0.14 0.025 150);         /* powered-on tube */
+  --glass-hot: oklch(0.17 0.032 148);     /* tube centre, slightly hotter */
+  --phosphor: oklch(0.80 0.16 145);       /* main text — P1 green phosphor */
+  --phosphor-dim: oklch(0.58 0.08 145);   /* secondary text */
+  --bright: oklch(0.91 0.20 145);         /* prompt, cursor, links — bright intensity */
+  --amber: oklch(0.82 0.13 75);           /* power LED only (hardware, not screen) */
+  --glow: oklch(0.72 0.14 145 / 0.55);
+  --glow-soft: oklch(0.72 0.14 145 / 0.3);
+  --roll: oklch(0.9 0.1 145 / 0.045);
+  --spill: oklch(0.72 0.14 145 / 0.12);   /* screen light on the desk */
+
+  --font-term: "VT323", "Consolas", "Menlo", monospace;
+  --size-term: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* phosphor variants — `theme amber` / `theme blue` */
+:root[data-theme="amber"] {
+  --glass: oklch(0.14 0.02 70);
+  --glass-hot: oklch(0.18 0.03 72);
+  --phosphor: oklch(0.80 0.14 75);
+  --phosphor-dim: oklch(0.58 0.07 75);
+  --bright: oklch(0.90 0.17 80);
+  --glow: oklch(0.72 0.13 75 / 0.55);
+  --glow-soft: oklch(0.72 0.13 75 / 0.3);
+  --roll: oklch(0.9 0.09 78 / 0.045);
+  --spill: oklch(0.72 0.13 75 / 0.12);
+}
+
+:root[data-theme="blue"] {
+  --glass: oklch(0.14 0.018 220);
+  --glass-hot: oklch(0.17 0.022 218);
+  --phosphor: oklch(0.87 0.055 210);
+  --phosphor-dim: oklch(0.66 0.035 210);
+  --bright: oklch(0.96 0.06 210);
+  --glow: oklch(0.75 0.09 210 / 0.55);
+  --glow-soft: oklch(0.75 0.09 210 / 0.25);
+  --roll: oklch(0.9 0.05 210 / 0.045);
+  --spill: oklch(0.75 0.09 210 / 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--glass);
+  font-family: var(--font-term);
+  color: var(--phosphor);
+  overflow: hidden;   /* full-screen terminal; text scrolls internally */
+}
+
+/* ── semantic fallback (no-JS / crawlers / screen readers) ─────────── */
+#fallback {
+  max-width: 65ch;
+  line-height: 1.6;
+  font-size: 1.25rem;
+}
+#fallback a { color: var(--bright); }
+body.js #fallback {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── full-screen terminal ──────────────────────────────────────────── */
+#crt { display: contents; }   /* no chassis; #screen is the whole screen */
+
+#screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* screen-curve vignette for CRT depth without a bezel */
+  background:
+    radial-gradient(130% 130% at 50% 45%, var(--glass-hot), var(--glass) 78%);
+  box-shadow: inset 0 0 14vmin oklch(0 0 0 / 0.55);
+  overflow: hidden;
+  animation: crt-on 0.5s var(--ease-out), flicker 4s infinite 0.5s;
+}
+
+/* scanlines + aperture shimmer */
+#screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      oklch(0 0 0 / 0.16) 2px 3px
+    ),
+    radial-gradient(100% 100% at 50% 0%, oklch(1 0 0 / 0.03), transparent 40%);
+  mix-blend-mode: multiply;
+}
+
+/* glass overlay: curved specular reflection + rolling scan band */
+#fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(55% 30% at 28% -4%, oklch(1 0 0 / 0.09), transparent 65%), /* convex highlight */
+    linear-gradient(112deg, transparent 42%, oklch(1 0 0 / 0.035) 47%, transparent 54%); /* diagonal sheen */
+}
+#fx::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14%;
+  background: linear-gradient(to bottom,
+    transparent,
+    var(--roll) 50%,
+    transparent);
+  animation: roll 8s linear infinite;
+}
+
+@keyframes roll {
+  from { transform: translateY(-110%); }
+  to   { transform: translateY(820%); }
+}
+
+@keyframes crt-on {
+  0%   { transform: scale(0.85, 0.02); filter: brightness(6); }
+  45%  { transform: scale(1.01, 0.7);  filter: brightness(2.2); }
+  100% { transform: scale(1, 1);       filter: brightness(1); }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92%      { opacity: 1; }
+  93%      { opacity: 0.96; }
+  94%      { opacity: 1; }
+  97%      { opacity: 0.98; }
+}
+
+/* ── terminal text ─────────────────────────────────────────────────── */
+#terminal {
+  flex: 1 1 auto;
+  min-height: 0;                /* let it shrink so the screen hole clips scroll */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  font-size: var(--size-term);
+  line-height: 1.45;
+  /* phosphor bloom — single-gun tube, no RGB fringe */
+  text-shadow:
+    0 0 6px var(--glow),
+    0 0 18px var(--glow-soft);
+  scrollbar-width: thin;
+  scrollbar-color: var(--phosphor-dim) transparent;
+}
+
+.line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: 1.45em;
+}
+
+.dim { color: var(--phosphor-dim); }
+
+#terminal a {
+  color: var(--bright);
+  text-decoration-color: color-mix(in oklch, var(--bright) 45%, transparent);
+  text-underline-offset: 3px;
+}
+#terminal a:hover { text-decoration-color: var(--bright); }
+
+::selection { background: var(--phosphor); color: var(--glass); }
+
+/* ── prompt ────────────────────────────────────────────────────────── */
+#prompt-line {
+  display: flex;
+  gap: 0.6ch;
+  align-items: baseline;
+}
+#prompt-line.busy { opacity: 0.4; }
+
+#prompt-label, .prompt-echo { color: var(--bright); }
+
+#cmd-input {
+  flex: 0 1 auto;               /* size to content so the block cursor sits at text end */
+  min-width: 1ch;
+  background: none;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  text-shadow: inherit;
+  caret-color: transparent;     /* replaced by the block cursor */
+  padding: 0;
+}
+
+/* blinking block cursor */
+#cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: -0.3ch;
+  translate: 0 0.15em;
+  background: var(--bright);
+  box-shadow: 0 0 6px var(--glow);
+  animation: blink 1.06s steps(1) infinite;
+}
+#prompt-line.busy #cursor { opacity: 0; animation: none; }
+@keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+/* ── clickable commands ────────────────────────────────────────────── */
+.cmd {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--bright);
+  text-shadow: inherit;
+}
+.cmd::before { content: "["; color: var(--phosphor-dim); }
+.cmd::after  { content: "]"; color: var(--phosphor-dim); }
+.cmd:hover, .cmd:focus-visible {
+  color: var(--glass);
+  background: var(--bright);
+  text-shadow: none;
+}
+.cmd:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
+
+/* function-key strip under the glass */
+#cmd-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  justify-content: center;
+  padding: 0.9rem 1rem 0.1rem;
+  font-family: var(--font-term);
+  font-size: calc(var(--size-term) * 0.9);
+}
+#cmd-bar .cmd { color: var(--phosphor-dim); text-shadow: none; }
+#cmd-bar .cmd:hover, #cmd-bar .cmd:focus-visible {
+  color: var(--bezel);
+  background: var(--bright);
+}
+
+/* ── snake ─────────────────────────────────────────────────────────── */
+.snake {
+  font: inherit;
+  line-height: 1.1;
+  margin: 0.5em 0;
+  color: var(--phosphor);
+}
+
+/* ── ASCII blocks (banner, sysinfo card) ───────────────────────────── */
+.ascii {
+  font-family: var(--font-term);  /* else <pre> falls back to system mono */
+  margin: 0.4em 0;
+  line-height: 1.15;
+  font-size: min(1em, 3.6vw);   /* shrink so art never wraps on phones */
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.banner { color: var(--bright); }
+.sysinfo { color: var(--phosphor); font-size: min(1em, 3vw); }
+
+
+/* ── reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #screen { animation: none; }
+  #fx::before { animation: none; opacity: 0; }
+  #cursor { animation: none; }
+  #screen::after {
+    background: radial-gradient(100% 100% at 50% 0%, oklch(1 0 0 / 0.02), transparent 40%);
+  }
+}
+
+
+
+/* ── idle screensaver (matrix rain) ────────────────────────────────── */
+#saver {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  pointer-events: none;   /* first click/keypress passes through and wakes */
+}

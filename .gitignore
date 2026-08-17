@@ -1,0 +1,10 @@
+# tool caches
+.impeccable/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# personal content kept out of the public repo
+.private/
