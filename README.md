@@ -1,5 +1,7 @@
 # terminal portfolio
 
+> **Status:** actively developed
+
 my portfolio site, but its a fake CRT terminal. plain html/css/js, no build step, no dependencies.
 
 you type (or click) commands like `about`, `projects`, `skills`, `contact`. projects pull live from the github api. theres a fake filesystem with `ls`/`cat`/tab-completion, phosphor themes, a matrix rain screensaver, snake, and a couple easter eggs.
